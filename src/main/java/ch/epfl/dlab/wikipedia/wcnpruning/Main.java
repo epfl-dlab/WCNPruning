@@ -11,22 +11,27 @@ import java.util.Set;
 public class Main {
 	public static void main(String[] args) {
 		
+		if (args.length < 3) {
+			System.out.println("Missing parameters: edges_file category_articles articles_type");
+			System.exit(0);
+		}
+		
 		System.out.println("Pruning started");
 		System.out.println("Loading...");
-		Graph graph = Importer.loadGraph("edges.txt");
+		Graph graph = Importer.loadGraph(args[0]);
 		System.out.println("Total categories: " + graph.categories.size());
 		System.out.println("Loading Articles...");
-		Importer.loadArticles(graph);
+		Importer.loadArticles(graph, args[1]);
 		System.out.println("Total articles: " + graph.articles.size());
 		System.out.println("Loading types...");
-		long count = Importer.loadTypes(graph);
+		long count = Importer.loadTypes(graph, args[2]);
 		System.out.println("Assigned " + count + " types...");
 
 
 		graph.packVirtualIds();
 		
 		
-		GraphPruner gpGini = new GraphPruner(graph, giniScoreFunction, 0.966, 40);
+		GraphPruner gpGini = new GraphPruner(graph, giniScoreFunction, 0.966, 40, giniScoreFunction.getName() + "_articles_scores.json");
 		gpGini.run();
 	}
 	

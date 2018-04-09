@@ -60,7 +60,7 @@ public class GraphPruner {
 	 * @param scoreFunction
 	 * @param threshold
 	 */
-	public GraphPruner(Graph graph, PurityScoreFunction scoreFunction, double threshold, int threads) {
+	public GraphPruner(Graph graph, PurityScoreFunction scoreFunction, double threshold, int threads, String output_name) {
 
 		this.threads_number = threads;
 
@@ -86,7 +86,7 @@ public class GraphPruner {
 
 		try {
 			writer = new OutputStreamWriter(
-					new FileOutputStream(new File(scoreFunction.getName() + "_filtered_articles_scores.json")),
+					new FileOutputStream(new File(output_name)),
 					StandardCharsets.UTF_8);
 			bw = new BufferedWriter(writer);
 		} catch (IOException e) {
@@ -158,6 +158,7 @@ public class GraphPruner {
 
 			double score = scoreFunction.getScore(ftd);
 
+			// Check for purity
 			if (score > threshold) {
 				categoriesInfo[category.virtualId].isPure = true;
 

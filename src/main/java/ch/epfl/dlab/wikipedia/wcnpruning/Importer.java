@@ -16,6 +16,11 @@ import ch.epfl.dlab.wikipedia.wcnpruning.Graph.Category;
 
 public class Importer {
 
+	/**
+	 * Load the edges of the graph. It creates the missing vertices
+	 * @param edgesFile
+	 * @return
+	 */
 	public static Graph loadGraph(String edgesFile) {
 		Graph graph = new Graph();
 
@@ -41,10 +46,16 @@ public class Importer {
 	}
 	
 
-	public static List<String> loadArticles(Graph graph) {
+	/**
+	 * Load the articles assigned to a category (one per row)
+	 * @param graph
+	 * @param articlesFile
+	 * @return
+	 */
+	public static List<String> loadArticles(Graph graph, String articlesFile) {
 		List<String> ignored = new ArrayList<>();
 			try (BufferedReader br = new BufferedReader(new InputStreamReader(
-	                new FileInputStream("article_categories.tsv"), StandardCharsets.UTF_8))) {
+	                new FileInputStream(articlesFile), StandardCharsets.UTF_8))) {
 			for (String line; (line = br.readLine()) != null;) {
 				String[] info = line.split("\t");
 				Integer aid = Integer.valueOf(info[0]);
@@ -73,9 +84,15 @@ public class Importer {
 		return ignored;
 	}
 
-	public static long loadTypes(Graph graph) {
+	/**
+	 * Load the types of an article. One per row
+	 * @param graph
+	 * @param typesFile
+	 * @return
+	 */
+	public static long loadTypes(Graph graph, String typesFile) {
 		long total = 0;
-		try (BufferedReader br = new BufferedReader(new FileReader("joined.tsv"))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(typesFile))) {
 			for (String line; (line = br.readLine()) != null;) {
 				String[] parts = line.split("\t");
 				Integer aid = Integer.valueOf(parts[0]);
