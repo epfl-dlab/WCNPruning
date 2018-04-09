@@ -13,7 +13,7 @@ public class Main {
 		
 		System.out.println("Pruning started");
 		System.out.println("Loading...");
-		Graph graph = Importer.loadGraph();
+		Graph graph = Importer.loadGraph("edges.txt");
 		System.out.println("Total categories: " + graph.categories.size());
 		System.out.println("Loading Articles...");
 		Importer.loadArticles(graph);
@@ -25,9 +25,8 @@ public class Main {
 
 		graph.packVirtualIds();
 		
-		//Set<Integer> whitelist = Importer.getWhiteList();
 		
-		GraphPruner gpGini = new GraphPruner(graph, giniScoreFunction, 0.966);
+		GraphPruner gpGini = new GraphPruner(graph, giniScoreFunction, 0.966, 40);
 		gpGini.run();
 	}
 	

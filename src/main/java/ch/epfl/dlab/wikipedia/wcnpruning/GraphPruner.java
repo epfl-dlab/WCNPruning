@@ -39,19 +39,32 @@ public class GraphPruner {
 	CategoryInfo[] categoriesInfo;
 	Article[] articleByVirtualId;
 	AtomicInteger processedCategories = new AtomicInteger(0);
+	// BlockingQueue used by the consumer threads
 	BlockingQueue<Category> readyCategories = new LinkedBlockingQueue<>();
+	// The purity function used
 	PurityScoreFunction scoreFunction;
+
 	Timer timer = new Timer();
 	OutputStreamWriter writer = null;
 	BufferedWriter bw = null;
-	//Set<Integer> whitelist;
-	
+
+	int threads_number = 10;
+
 	public void log(String message) {
 		System.out.println(new Date() + " [" + threshold + "] " + message);
 	}
 
-	public GraphPruner(Graph graph, PurityScoreFunction scoreFunction, double threshold) {
+	/**
+	 * 
+	 * @param graph
+	 * @param scoreFunction
+	 * @param threshold
+	 */
+	public GraphPruner(Graph graph, PurityScoreFunction scoreFunction, double threshold, int threads) {
 
+		this.threads_number = threads;
+
+		// add logger feedback, every 20 seconds
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
@@ -60,7 +73,6 @@ public class GraphPruner {
 			}
 		}, 20 * 1000, 20 * 1000);
 
-		//this.whitelist = whitelist;
 		this.graph = graph;
 		this.threshold = threshold;
 		this.scoreFunction = scoreFunction;
@@ -71,14 +83,16 @@ public class GraphPruner {
 		articleByVirtualId = new Article[graph.articles.size()];
 		for (Article a : graph.articles.values())
 			articleByVirtualId[a.virtualId] = a;
-		
+
 		try {
-			writer = new OutputStreamWriter(new FileOutputStream(new File(scoreFunction.getName()+"_filtered_articles_scores.json")), StandardCharsets.UTF_8);
+			writer = new OutputStreamWriter(
+					new FileOutputStream(new File(scoreFunction.getName() + "_filtered_articles_scores.json")),
+					StandardCharsets.UTF_8);
 			bw = new BufferedWriter(writer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public void run() {
@@ -89,8 +103,8 @@ public class GraphPruner {
 
 		log("Start pruining...");
 
-		ExecutorService executor = Executors.newFixedThreadPool(40);
-		for (int i = 0; i < 40; i++) {
+		ExecutorService executor = Executors.newFixedThreadPool(this.threads_number);
+		for (int i = 0; i < this.threads_number; i++) {
 			Runnable worker = new Runnable() {
 
 				@Override
@@ -108,16 +122,14 @@ public class GraphPruner {
 		while (!executor.isTerminated()) {
 		}
 
-		//log("Start validation...");
-
 		timer.cancel();
-		//flog.close();
 		try {
 			bw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
 	public void process() throws InterruptedException {
 		while (processedCategories.incrementAndGet() <= graph.categories.size()) {
 			// this is a blocking and synchronized call
@@ -136,25 +148,24 @@ public class GraphPruner {
 			HashMap<String, Integer> ftd = new HashMap<>();
 			for (int aid : articlesIds) {
 				Article article = articleByVirtualId[aid];
-				if(article.type!=null) {
+				if (article.type != null) {
 					Integer count = ftd.get(article.type);
 					if (count == null)
 						count = 0;
 					ftd.put(article.type, count + 1);
 				}
 			}
-			
+
 			double score = scoreFunction.getScore(ftd);
 
 			if (score > threshold) {
 				categoriesInfo[category.virtualId].isPure = true;
-				
+
 				Map<String, Object> row = new HashMap<>();
 				row.put("category", category.name);
 				List<Integer> ids = new ArrayList<>();
 				for (int vid : articlesIds)
-					//if(whitelist.contains(articleByVirtualId[vid].id))
-						ids.add(articleByVirtualId[vid].id);
+					ids.add(articleByVirtualId[vid].id);
 				row.put("articles", ids);
 				row.put("score", score);
 				writeRow(gson.toJson(row));
@@ -170,14 +181,14 @@ public class GraphPruner {
 				parentInfoWrapper.notify(category.virtualId, articlesIds, readyCategories);
 			}
 
-
 			// now all the parents are notified, and I can release the memory
 			categoryInfo.releaseCache();
 
 		}
 	}
-	
+
 	public static Gson gson = new Gson();
+
 	public synchronized void writeRow(String row) {
 
 		try {
@@ -187,24 +198,44 @@ public class GraphPruner {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 * It represents a "mail box" for the messaging logic. The visited categories
+	 * send messages to the parent nodes.
+	 * 
+	 * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+	 *
+	 */
 	public static class CategoryInfo {
+		// The embedded category
 		public final Category category;
+		// If it is marked as pure
 		public Boolean isPure;
+		// The list of children categories that passed informations so far
 		public Set<Integer> sendersIds = new HashSet<>();
+
+		// The list of all the children of the category according to the pruning.
+		// The list is compressed in a bit vector after the size reach a threshold
+		// Explicit version:
 		private Set<Integer> articlesIds = new HashSet<>();
+		// Compressed version:
 		private BitSet compressedArticles = null;
+
+		// compression threshold
+		int LIMIT_SIZE = (5000000 / 8) / 4;
 
 		public CategoryInfo(Category category) {
 			this.category = category;
 		}
 
+		// destroy the mailbox
 		public void releaseCache() {
 			articlesIds = null;
 			sendersIds = null;
 			compressedArticles = null;
 		}
 
+		// get the list of all children
 		public Set<Integer> getArticlesIds() {
 			if (articlesIds != null)
 				return articlesIds;
@@ -218,15 +249,20 @@ public class GraphPruner {
 			}
 		}
 
-		int LIMIT_SIZE = (5000000 / 8) / 4;
-
+		/**
+		 * Called by a category to notify the parents that it is pure and its articles
+		 * must be propagated
+		 * 
+		 * @param virtualCategoryId
+		 * @param childArticles
+		 * @param queue
+		 */
 		public synchronized void notify(int virtualCategoryId, Set<Integer> childArticles,
 				BlockingQueue<Category> queue) {
-			
+
 			// add the list of children
 			sendersIds.add(virtualCategoryId);
 
-			
 			if (articlesIds != null) {
 				articlesIds.addAll(childArticles);
 				if (articlesIds.size() > LIMIT_SIZE) {
@@ -242,6 +278,7 @@ public class GraphPruner {
 				compressedArticles.or(newSet);
 			}
 
+			// Check if all the children categories are processed
 			boolean canBeScheduled = true;
 			for (Category child : category.children) {
 				canBeScheduled &= sendersIds.contains(child.virtualId);

@@ -16,13 +16,13 @@ import ch.epfl.dlab.wikipedia.wcnpruning.Graph.Category;
 
 public class Importer {
 
-	public static Graph loadGraph() {
+	public static Graph loadGraph(String edgesFile) {
 		Graph graph = new Graph();
 
 		System.out.println("Loading categories...");
 		
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream("edges.txt"), StandardCharsets.UTF_8))) {
+                new FileInputStream(edgesFile), StandardCharsets.UTF_8))) {
 			for (String line; (line = br.readLine()) != null;) {
 				String[] edge = line.split("\t");
 				String parent = edge[1];
@@ -39,22 +39,6 @@ public class Importer {
 		}
 		return graph;
 	}
-	
-//	
-//	public static Set<Integer> getWhiteList() {
-//		Set<Integer> wl = new HashSet<>();
-//		
-//		try (BufferedReader br = new BufferedReader(new InputStreamReader(
-//                new FileInputStream("valid_articles_ids.txt"), StandardCharsets.UTF_8))) {
-//			for (String line; (line = br.readLine()) != null;) {
-//				Integer id = Integer.valueOf(line);
-//				wl.add(id);
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return wl;
-//	}
 	
 
 	public static List<String> loadArticles(Graph graph) {
