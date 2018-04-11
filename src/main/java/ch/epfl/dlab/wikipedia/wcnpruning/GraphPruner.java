@@ -29,7 +29,7 @@ import ch.epfl.dlab.wikipedia.wcnpruning.Graph.Category;
 
 /**
  * 
- * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+ * @author Tiziano Piccardi tiziano.piccardi@epfl.ch
  *
  */
 public class GraphPruner {
@@ -98,6 +98,9 @@ public class GraphPruner {
 
 	}
 
+	/**
+	 * Launch N threads
+	 */
 	public void run() {
 
 		for (Category c : graph.categories.values())
@@ -133,6 +136,10 @@ public class GraphPruner {
 		}
 	}
 
+	/**
+	 * The task of one thread. It take one category from the queue and processes it
+	 * @throws InterruptedException
+	 */
 	public void process() throws InterruptedException {
 		while (processedCategories.incrementAndGet() <= graph.categories.size()) {
 			// this is a blocking and synchronized call
@@ -207,7 +214,7 @@ public class GraphPruner {
 	 * It represents a "mail box" for the messaging logic. The visited categories
 	 * send messages to the parent nodes.
 	 * 
-	 * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+	 * @author Tiziano Piccardi tiziano.piccardi@epfl.ch
 	 *
 	 */
 	public static class CategoryInfo {
@@ -232,14 +239,19 @@ public class GraphPruner {
 			this.category = category;
 		}
 
-		// destroy the mailbox
+		/**
+		 * destroy the mailbox
+		 */
 		public void releaseCache() {
 			articlesIds = null;
 			sendersIds = null;
 			compressedArticles = null;
 		}
 
-		// get the list of all children
+		/**
+		 * Get the list of all children
+		 * @return
+		 */
 		public Set<Integer> getArticlesIds() {
 			if (articlesIds != null)
 				return articlesIds;

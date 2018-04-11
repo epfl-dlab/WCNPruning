@@ -16,7 +16,7 @@ import ch.epfl.dlab.wikipedia.wcnpruning.Graph.Category;
 
 /**
  * 
- * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+ * @author Tiziano Piccardi tiziano.piccardi@epfl.ch
  *
  */
 public class Importer {

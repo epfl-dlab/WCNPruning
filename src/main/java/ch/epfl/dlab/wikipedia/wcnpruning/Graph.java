@@ -6,7 +6,7 @@ import java.util.Set;
 
 /**
  * 
- * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+ * @author Tiziano Piccardi tiziano.piccardi@epfl.ch
  *
  */
 public class Graph {
@@ -22,6 +22,7 @@ public class Graph {
 
 	/**
 	 * Get a reference to a category (with implicit creation)
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -96,7 +97,7 @@ public class Graph {
 
 	/**
 	 * The definition of the category node 
-	 * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+	 * @author Tiziano Piccardi tiziano.piccardi@epfl.ch
 	 *
 	 */
 	public static class Category {
@@ -149,7 +150,7 @@ public class Graph {
 
 	/**
 	 * The definition of the article node
-	 * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+	 * @author Tiziano Piccardi tiziano.piccardi@epfl.ch
 	 *
 	 */
 	public static class Article {

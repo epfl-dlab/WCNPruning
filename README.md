@@ -73,6 +73,8 @@ article_id2⇥type
 
 ## Files description:
 
+Check the comments in the source code to 
+
 **Graph.java**
 
 It defines the category network nodes: articles and categories. Both have the concept of virtual ID to compress the lookup table (remove gaps).
