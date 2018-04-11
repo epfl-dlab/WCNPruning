@@ -14,6 +14,11 @@ import java.util.Set;
 import ch.epfl.dlab.wikipedia.wcnpruning.Graph.Article;
 import ch.epfl.dlab.wikipedia.wcnpruning.Graph.Category;
 
+/**
+ * 
+ * @author Tiziano Piccardi <tiziano.piccardi@epfl.ch>
+ *
+ */
 public class Importer {
 
 	/**

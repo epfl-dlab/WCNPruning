@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Main {
 	public static void main(String[] args) {
@@ -16,6 +15,7 @@ public class Main {
 			System.exit(0);
 		}
 		
+		// Load the dataset
 		System.out.println("Pruning started");
 		System.out.println("Loading...");
 		Graph graph = Importer.loadGraph(args[0]);
@@ -28,6 +28,7 @@ public class Main {
 		System.out.println("Assigned " + count + " types...");
 
 
+		// Important step to compress the virtual IDs
 		graph.packVirtualIds();
 		
 		

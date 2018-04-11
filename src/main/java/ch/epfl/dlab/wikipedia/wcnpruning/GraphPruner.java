@@ -73,10 +73,13 @@ public class GraphPruner {
 			}
 		}, 20 * 1000, 20 * 1000);
 
+		// Initial assignments
 		this.graph = graph;
 		this.threshold = threshold;
 		this.scoreFunction = scoreFunction;
 		categoriesInfo = new CategoryInfo[graph.categories.size()];
+		
+		
 		for (Category c : graph.categories.values())
 			categoriesInfo[c.virtualId] = new CategoryInfo(c);
 
@@ -159,7 +162,7 @@ public class GraphPruner {
 			double score = scoreFunction.getScore(ftd);
 
 			// Check for purity
-			if (score > threshold) {
+			if (score > this.threshold) {
 				categoriesInfo[category.virtualId].isPure = true;
 
 				Map<String, Object> row = new HashMap<>();
