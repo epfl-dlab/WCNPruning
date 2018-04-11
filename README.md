@@ -73,7 +73,7 @@ article_id2⇥type
 
 ## Files description:
 
-Check the comments in the source code to 
+Check the comments in the source code and the javadoc for more information.
 
 **Graph.java**
 
