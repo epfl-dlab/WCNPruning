@@ -19,6 +19,12 @@ To run our code, you need:
 - Maven
 - The three input files: category network, articles-categories association, the article types
 
+### Data requirements
+
+The graph of the categories MUST be a [Directed Acyclic Graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph). 
+
+We recommend removing cycles with [this](https://github.com/epfl-dlab/GraphCyclesRemoval) implementation of the paper: "A fast and effective heuristic for the feedback arc set problem".
+
 
 ## Build informations:
 
