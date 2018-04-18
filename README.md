@@ -101,7 +101,7 @@ Interface for score generators
 
 This file contains the logic of the algorithm. The constructor requires: the graph, the scoring function, the threshold (to flag the category as pure), the number of threads, and the output file.
 
-### Data
+## Data
 
 We provide as a sample the dataset used as input and the output generated for the paper "[Structuring Wikipedia Articles with Section Recommendations](https://arxiv.org/abs/1804.05995)".
 
